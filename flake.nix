@@ -39,6 +39,9 @@
         src = pkgs.lib.cleanSourceWith {src = self;};
 
         cargoLock.lockFile = ./Cargo.lock;
+	cargoLock.outputHashes = {
+	  "textplots-0.8.7" = "1db295azc9nlbrgfm2k9p3rxlqx7nh8bh8z5zk1nnyc4k49p4m0f";
+	};
 
         GIT_COMMIT_HASH_SHORT = self.shortRev or "unknown";
         postPatch = ''
