@@ -26,6 +26,7 @@ pub use environment::collapse_links;
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TypeAliasAnnotation {
+    pub module: Option<String>,
     pub alias: String,
     pub parameters: Vec<String>,
     pub annotation: Annotation,
@@ -1355,6 +1356,10 @@ impl TypeConstructor {
             module: "".to_string(),
             public: true,
         }
+    }
+
+    pub fn might_be(name: &str) -> bool {
+        name.chars().next().unwrap().is_uppercase()
     }
 }
 

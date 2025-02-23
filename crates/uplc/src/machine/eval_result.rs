@@ -1,13 +1,13 @@
-use super::{cost_model::ExBudget, Error};
+use super::{cost_model::ExBudget, Error, Trace};
 use crate::ast::{Constant, NamedDeBruijn, Term};
 
 #[derive(Debug)]
 pub struct EvalResult {
-    result: Result<Term<NamedDeBruijn>, Error>,
-    remaining_budget: ExBudget,
-    initial_budget: ExBudget,
-    logs: Vec<String>,
-    debug_cost: Option<Vec<i64>>,
+    pub result: Result<Term<NamedDeBruijn>, Error>,
+    pub remaining_budget: ExBudget,
+    pub initial_budget: ExBudget,
+    pub traces: Vec<Trace>,
+    pub debug_cost: Option<Vec<i64>>,
 }
 
 impl EvalResult {
@@ -15,14 +15,14 @@ impl EvalResult {
         result: Result<Term<NamedDeBruijn>, Error>,
         remaining_budget: ExBudget,
         initial_budget: ExBudget,
-        logs: Vec<String>,
+        traces: Vec<Trace>,
         debug_cost: Option<Vec<i64>>,
     ) -> EvalResult {
         EvalResult {
             result,
             remaining_budget,
             initial_budget,
-            logs,
+            traces,
             debug_cost,
         }
     }
@@ -31,8 +31,24 @@ impl EvalResult {
         self.initial_budget - self.remaining_budget
     }
 
-    pub fn logs(&mut self) -> Vec<String> {
-        std::mem::take(&mut self.logs)
+    pub fn traces(&self) -> Vec<Trace> {
+        self.traces.clone()
+    }
+
+    pub fn logs(&self) -> Vec<String> {
+        self.traces
+            .iter()
+            .cloned()
+            .filter_map(Trace::unwrap_log)
+            .collect()
+    }
+
+    pub fn labels(&self) -> Vec<String> {
+        self.traces
+            .iter()
+            .cloned()
+            .filter_map(Trace::unwrap_label)
+            .collect()
     }
 
     pub fn failed(&self, can_error: bool) -> bool {

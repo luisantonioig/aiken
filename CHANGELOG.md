@@ -1,6 +1,38 @@
 # Changelog
 
-## v1.1.11 - UNRELEASED
+## v1.1.15 - UNRELEASED
+
+### Added
+
+- **aiken-lsp**: an additional code action to use constructors or identifiers from qualified imports is now offered on missing constructor or identifier. @KtorZ
+
+### Changed
+
+- **aiken-lang**: fixed `UnknownTypeConstructor` wrongly reported as `UnknownVariable` (then messing up with LSP quickfix suggestions). @KtorZ
+
+## v1.1.14 - 2025-02-21
+
+### Changed
+
+- **aiken-project**: add back borders to the textplots @rvcas
+
+## v1.1.13 - 2025-02-21
+
+### Changed
+
+- **aiken**: Bumped pallas to 0.32.0
+
+## v1.1.12 - 2025-02-18
+
+### Changed
+
+- **uplc**: `eval_phase_two` and related functions now return an EvalResult @Quantumplation
+
+  In order to allow consuming tools provide better tooling experiences, the various `eval_phase_two`
+  functions provide an `EvalResult`, which includes the final term, the remaining budget, and the traces.
+  This means you can display or work with the traces of a script even if it succeeds.
+
+## v1.1.11 - 2025-02-11
 
 ### Added
 
@@ -16,9 +48,10 @@
 
 ### Changed
 
-
 - **aiken-lang**: The compiler now raises a warning when attempting to destructure a record constructor without using named fields. See [#1084](https://github.com/aiken-lang/aiken/issues/1084). @KtorZ
 - **aiken-lang**: Fix blueprint schema definitions related to pairs (no longer omit (sometimes) Pairs definitions, and generate them as data List). See [#1086](https://github.com/aiken-lang/aiken/issues/1086) and [#970](https://github.com/aiken-lang/aiken/issues/970). @KtorZ
+- **aiken-project**: Improve feedback returned when matching tests or modules. See [#1092](https://github.com/aiken-lang/aiken/issues/1092). @KtorZ
+- **aiken-project**: Disambiguate type-alias blueprint definition using module's name. See [#1074](https://github.com/aiken-lang/aiken/issues/1092). @KtorZ
 
 ## v1.1.10 - 2025-01-21
 
@@ -27,13 +60,12 @@
 - **aiken-project**: `export` output now supports the functions `return_type`. @rvcas
 - **aiken-lang**: `write_bits` can now be used from aiken/builtins. @Microproofs
 
-
 ### Changed
 
 - **aiken-project**: The `aiken.toml` file no longer supports `v1` and `v2` for the plutus version field. @rvcas
-- **aiken-project**: `Error::TomlLoading` now looks much better - [see](https://github.com/aiken-lang/aiken/issues/1032#issuecomment-2562122101). @rvcas
+- **aiken-project**: `Error::TomlLoading` now looks much better - see [#1032](https://github.com/aiken-lang/aiken/issues/1032#issuecomment-2562122101). @rvcas
 - **aiken-lang**: 10-20% optimization improvements via case-constr, rearranging function definitions (while maintaining dependency ordering),
-                  and allowing inlining in if_then_else_error cases which preserve the same error semantics for a program. @Microproofs
+  and allowing inlining in if_then_else_error cases which preserve the same error semantics for a program. @Microproofs
 
 ### Fixed
 

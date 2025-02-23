@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     ast::{FakeNamedDeBruijn, NamedDeBruijn, Program},
-    machine::cost_model::ExBudget,
+    machine::{cost_model::ExBudget, eval_result::EvalResult},
     tx::{
         phase_one::redeemer_tag_to_string,
         script_context::{DataLookupTable, ScriptVersion, TxInfoV1, TxInfoV2, TxInfoV3},
@@ -23,7 +23,7 @@ pub fn eval_redeemer(
     lookup_table: &DataLookupTable,
     cost_mdls_opt: Option<&CostModels>,
     initial_budget: &ExBudget,
-) -> Result<Redeemer, Error> {
+) -> Result<(Redeemer, EvalResult), Error> {
     fn do_eval_redeemer(
         cost_mdl_opt: Option<&CostModel>,
         initial_budget: &ExBudget,
@@ -32,7 +32,7 @@ pub fn eval_redeemer(
         redeemer: &Redeemer,
         tx_info: TxInfo,
         program: Program<NamedDeBruijn>,
-    ) -> Result<Redeemer, Error> {
+    ) -> Result<(Redeemer, EvalResult), Error> {
         let script_context = tx_info
             .into_script_context(redeemer, datum.as_ref())
             .expect("couldn't create script context from transaction?");
@@ -49,18 +49,16 @@ pub fn eval_redeemer(
             ScriptContext::V3 { .. } => program.apply_data(script_context.to_plutus_data()),
         };
 
-        let mut eval_result = if let Some(costs) = cost_mdl_opt {
+        let eval_result = if let Some(costs) = cost_mdl_opt {
             program.eval_as(lang, costs, Some(initial_budget))
         } else {
             program.eval_version(ExBudget::default(), lang)
         };
 
         let cost = eval_result.cost();
-        let logs = eval_result.logs();
 
-        match eval_result.result() {
-            Ok(_) => (),
-            Err(err) => return Err(Error::Machine(err, cost, logs)),
+        if let Err(err) = eval_result.result() {
+            return Err(Error::Machine(err, cost, eval_result.traces()));
         }
 
         let new_redeemer = Redeemer {
@@ -73,7 +71,7 @@ pub fn eval_redeemer(
             },
         };
 
-        Ok(new_redeemer)
+        Ok((new_redeemer, eval_result))
     }
 
     let program = |script: Bytes| {
